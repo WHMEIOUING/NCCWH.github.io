@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUXE DESIGN | 高端设计师作品集</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- GSAP 动画库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0A0A0A',
+                        secondary: '#1A1A1A',
+                        accent: '#D4AF37', // 金色
+                        light: '#F5F5F5',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    transitionProperty: {
+                        'height': 'height',
+                        'spacing': 'margin, padding',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-balance {
+                text-wrap: balance;
+            }
+            .text-shadow {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            }
+            .transition-transform {
+                transition-property: transform;
+                transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+                transition-duration: 300ms;
+            }
+            .hover-scale {
+                @apply hover:scale-105 transition-transform duration-300;
+            }
+            .card-shadow {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            .nav-shadow {
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            }
+            .glass-effect {
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
+            .premium-text {
+                background: linear-gradient(to right, #ffffff, #d4af37, #ffffff);
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+                position: relative;
+            }
+            .premium-text::after {
+                content: attr(data-text);
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(
+                    90deg, 
+                    transparent 0%, 
+                    rgba(255, 255, 255, 0.4) 50%, 
+                    transparent 100%
+                );
+                background-size: 200% 100%;
+                background-position: 100% 0;
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+                animation: shimmer 3s infinite;
+            }
+            @keyframes shimmer {
+                0% { background-position: 100% 0; }
+                100% { background-position: -100% 0; }
+            }
+        }
+    </style>
+    
+    <style>
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1A1A1A;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D4AF37;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #B8941F;
+        }
+        
+        /* 平滑区域的动画 */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        
+        .fade-in.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* 作品卡片悬停效果 */
+        .work-card {
+            transition: all 0.3s ease;
+        }
+        
+        .work-card:hover .work-overlay {
+            opacity: 1;
+        }
+        
+        .work-overlay {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        /* 导航栏滚动效果 */
+        .navbar-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 50;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        /* 灵动岛样式 */
+        .dynamic-island {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background-color: rgba(26, 26, 26, 0.7);
+            transition: all 0.3s ease;
+        }
+        
+        /* 滚动转场效果 */
+        .transition-container {
+            position: relative;
+            height: 300vh;
+        }
+        
+        .transition-container .sticky {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .transition-container img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: width 0.5s ease;
+        }
+        
+        .transition-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #D4AF37;
+            z-index: 10;
+            transition: left 0.5s ease;
+        }
+        
+        /* 固定与滚动混合布局 */
+        .fixed-scroll-layout {
+            display: flex;
+            min-height: 300vh;
+        }
+        
+        .fixed-scroll-layout .scroll-content {
+            width: 50%;
+            padding: 2rem;
+        }
+        
+        .fixed-scroll-layout .fixed-content {
+            width: 50%;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .fixed-scroll-layout .fixed-content img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .fixed-scroll-layout .fixed-content img.active {
+            opacity: 1;
+        }
+        
+        .section {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        /* 全屏抽屉式详情 */
+        .drawer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+            visibility: hidden;
+        }
+        
+        .drawer-backdrop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .drawer-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 90vh;
+            background-color: #0A0A0A;
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+            transform: translateY(100%);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow-y: auto;
+        }
+        
+        .drawer.active .drawer-backdrop {
+            opacity: 1;
+        }
+        
+        .drawer.active .drawer-content {
+            transform: translateY(0);
+        }
+        
+        .drawer-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            cursor: pointer;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="bg-primary text-white font-sans">
+    <!-- 导航栏 -->
+    <nav id="navbar" class="navbar-fixed bg-primary bg-opacity-80 glass-effect py-4">
+        <div class="container mx-auto px-4 md:px-8">
+            <div class="flex justify-between items-center">
+                <a href="#" class="text-2xl font-bold text-white">
+                    <span class="premium-text" data-text="LUXE DESIGN">LUXE DESIGN</span>
+                </a>
+                
+                <!-- 桌面导航 -->
+                <div class="hidden md:flex ml-auto space-x-8">
+                    <a href="#home" class="text-gray-300 hover:text-accent transition-colors">首页</a>
+                    <a href="#works" class="text-gray-300 hover:text-accent transition-colors">作品</a>
+                    <a href="#about" class="text-gray-300 hover:text-accent transition-colors">关于</a>
+                    <a href="#contact" class="text-gray-300 hover:text-accent transition-colors">联系</a>
+                </div>
+                
+                <!-- 移动端菜单按钮 -->
+                <button id="menu-toggle" class="md:hidden ml-auto text-white focus:outline-none">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 移动端导航菜单 -->
+        <div id="mobile-menu" class="md:hidden bg-secondary hidden absolute top-full left-0 w-full border-t border-gray-800">
+            <div class="container mx-auto px-4 py-4">
+                <a href="#home" class="block py-2 text-gray-300 hover:text-accent">首页</a>
+                <a href="#works" class="block py-2 text-gray-300 hover:text-accent">作品</a>
+                <a href="#about" class="block py-2 text-gray-300 hover:text-accent">关于</a>
+                <a href="#contact" class="block py-2 text-gray-300 hover:text-accent">联系</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero 区域 -->
+    <section id="home" class="min-h-screen flex items-center pt-16 relative overflow-hidden">
+        <!-- 背景装饰 -->
+        <div class="absolute top-0 left-0 w-full h-full">
+            <div class="absolute top-10 left-10 w-40 h-40 rounded-full bg-accent opacity-10 blur-3xl"></div>
+            <div class="absolute bottom-10 right-10 w-60 h-60 rounded-full bg-accent opacity-10 blur-3xl"></div>
+        </div>
+        
+        <div class="container mx-auto px-4 py-16 relative z-10">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-12">
+                <!-- 左侧文字内容 -->
+                <div class="max-w-3xl md:w-1/2">
+                    <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                        <span class="block">高端设计</span>
+                        <span class="block mt-2 premium-text" data-text="创造非凡体验">创造非凡体验</span>
+                    </h1>
+                    <p class="text-xl text-gray-400 mb-8 leading-relaxed">
+                        专注于将艺术与科技完美融合，为您打造独特而精致的设计作品，展现品牌的卓越品质与非凡魅力。
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#works" class="px-8 py-3 bg-accent text-primary font-medium rounded-md hover:bg-opacity-90 transition duration-300">
+                            浏览作品
+                        </a>
+                        <a href="#about" class="px-8 py-3 border border-accent text-accent font-medium rounded-md hover:bg-accent hover:bg-opacity-10 transition duration-300">
+                            了解更多
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 右侧图片 -->
+                <div class="md:w-2/5 relative">
+                    <div class="aspect-[3/4] rounded-lg overflow-hidden border border-gray-800 shadow-2xl">
+                        <img src="https://p26-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/327bc337472848e5b8524595bd394ebc~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260406141112659217383D681A603A96&rrcfp=f06b921b&x-expires=1778047903&x-signature=%2FcKbk7O3b%2BrJ4%2BA5eVEmRyEFGDU%3D" alt="高端设计作品" class="w-full h-full object-cover">
+                    </div>
+                    <!-- 装饰元素 -->
+                    <div class="absolute -bottom-4 -right-4 w-24 h-24 border-2 border-accent rounded-lg -z-10"></div>
+                    <div class="absolute -top-4 -left-4 w-24 h-24 border-2 border-accent rounded-lg -z-10"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 滚动转场效果区域 -->
+    <section class="transition-container" id="transition-section">
+        <div class="sticky top-0 h-screen overflow-hidden">
+            <!-- 重叠的三张图片，通过z-index控制层级 -->
+            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/0cdf64cd0e5e4124b4fd4bb1caad03b4~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260406141112659217383D681A603A96&rrcfp=f06b921b&x-expires=1778047914&x-signature=8bcB441wkzfVcsSkineJGx%2B6mco%3D" alt="设计作品1" class="absolute inset-0 w-full h-full object-cover object-center z-30" id="image1">
+            <img src="https://p26-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/7464956b474e40188f23e44db7cf0430~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260406141112659217383D681A603A96&rrcfp=f06b921b&x-expires=1778047924&x-signature=DTEM098IA9F6IktBf3VJwXkPrYU%3D" alt="设计作品2" class="absolute inset-0 w-full h-full object-cover object-center z-20" id="image2">
+            <img src="https://p26-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/327bc337472848e5b8524595bd394ebc~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260406141112659217383D681A603A96&rrcfp=f06b921b&x-expires=1778047903&x-signature=%2FcKbk7O3b%2BrJ4%2BA5eVEmRyEFGDU%3D" alt="设计作品3" class="absolute inset-0 w-full h-full object-cover object-center z-10" id="image3">
+        
+            <!-- 转场分隔线 -->
+            <div class="absolute top-0 bottom-0 w-0.5 bg-accent z-40" id="transition-line"></div>
+            
+            <!-- 文字内容 -->
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 text-center">
+                <h2 class="text-4xl md:text-6xl font-bold text-white mb-4 text-shadow">
+                    <span class="premium-text" data-text="创新设计">创新设计</span>
+                </h2>
+                <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                    探索边界，突破传统，每一件作品都是艺术与科技的完美融合
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 作品展示区 -->
+    <section id="works" class="py-24 bg-secondary">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold mb-16 text-center">
+                <span class="premium-text" data-text="精选作品">精选作品</span>
+            </h2>
+            
+            <!-- 作品网格 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 作品1 -->
+                <div class="work-card bg-primary rounded-lg overflow-hidden shadow-lg group" data-category="UI/UX">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/0cdf64cd0e5e4124b4fd4bb1caad03b4~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260406141112659217383D681A603A96&rrcfp=f06b921b&x-expires=1778047914&x-signature=8bcB441wkzfVcsSkineJGx%2B6mco%3D" alt="高端耳机设计" class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <span class="px-4 py-2 bg-accent text-primary text-sm font-medium rounded-md transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">查看详情</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2 text-white">Sonic Elite 耳机</h3>
+                        <p class="text-gray-400 text-sm mb-4">融合奢华与科技的高端无线耳机设计，黑金配色彰显尊贵品质。</p>
+                        <div class="flex justify-between items-center">
+                            <div class="px-4 py-2 bg-gray-800 rounded-full text-sm text-accent">产品设计</div>
+                            <button onclick="openDrawer('productDetails1')" class="text-accent text-sm font-medium hover:underline flex items-center">
+                                查看项目 <i class="fa fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 作品2 -->
+                <div class="work-card bg-primary rounded-lg overflow-hidden shadow-lg group" data-category="Web Design">
+                    <div class="relative overflow-hidden">
+                        <div class="aspect-w-16 aspect-h-9 w-full h-64 bg-gray-900 flex items-center justify-center">
+                            <div class="text-center">
+                                <i class="fa fa-desktop text-5xl text-accent mb-4"></i>
+                                <h4 class="text-xl font-semibold text-white">LUXE 官网设计</h4>
+                            </div>
+                        </div>
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <span class="px-4 py-2 bg-accent text-primary text-sm font-medium rounded-md transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">查看详情</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2 text-white">LUXE 品牌官网</h3>
+                        <p class="text-gray-400 text-sm mb-4">极简主义设计语言，打造沉浸式品牌体验，突显产品高端品质。</p>
+                        <div class="flex justify-between items-center">
+                            <div class="px-4 py-2 bg-gray-800 rounded-full text-sm text-accent">网页设计</div>
+                            <button onclick="openDrawer('productDetails2')" class="text-accent text-sm font-medium hover:underline flex items-center">
+                                查看项目 <i class="fa fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 作品3 -->
+                <div class="work-card bg-primary rounded-lg overflow-hidden shadow-lg group" data-category="Branding">
+                    <div class="relative overflow-hidden">
+                        <img src="https://p26-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/7464956b474e40188f23e44db7cf0430~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260406141112659217383D681A603A96&rrcfp=f06b921b&x-expires=1778047924&x-signature=DTEM098IA9F6IktBf3VJwXkPrYU%3D" alt="智能手表设计" class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <span class="px-4 py-2 bg-accent text-primary text-sm font-medium rounded-md transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">查看详情</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold mb-2 text-white">Chrono Luxe 智能手表</h3>
+                        <p class="text-gray-400 text-sm mb-4">奢华智能穿戴设备设计，将传统制表工艺与现代科技完美结合。</p>
+                        <div class="flex justify-between items-center">
+                            <div class="px-4 py-2 bg-gray-800 rounded-full text-sm text-accent">产品设计</div>
+                            <button onclick="openDrawer('productDetails3')" class="text-accent text-sm font-medium hover:underline flex items-center">
+                                查看项目 <i class="fa fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 固定与滚动混合布局区域 -->
+    <section class="fixed-scroll-layout" id="features-section">
+        <!-- 左侧滚动内容区 -->
+        <div class="scroll-content bg-primary">
+            <div class="section" data-section="1">
+                <h3 class="text-3xl font-bold mb-6 text-white">设计理念</h3>
+                <p class="text-gray-300 text-lg mb-8 leading-relaxed">
+                    我们坚信设计不仅仅是外观，更是关于体验与情感的表达。每一个细节都经过精心考量，力求创造出既美观又实用的产品。
+                </p>
+                <div class="w-24 h-1 bg-accent mb-8"></div>
+                <p class="text-gray-400">
+                    从概念到实现，我们注重每一个环节的品质把控，确保最终呈现的作品能够完美诠释品牌价值与设计理念。
+                </p>
+            </div>
+        
+            <div class="section" data-section="2">
+                <h3 class="text-3xl font-bold mb-6 text-white">工艺与材质</h3>
+                <p class="text-gray-300 text-lg mb-8 leading-relaxed">
+                    我们精选全球顶级材质，结合精湛工艺，打造出兼具美学价值与实用功能的设计作品，为用户带来卓越体验。
+                </p>
+                <div class="w-24 h-1 bg-accent mb-8"></div>
+                <p class="text-gray-400">
+                    每一件作品都凝聚了我们对细节的极致追求，从选材到成品，严格把控每一个环节，确保品质卓越。
+                </p>
+            </div>
+        
+            <div class="section" data-section="3">
+                <h3 class="text-3xl font-bold mb-6 text-white">创新与传统</h3>
+                <p class="text-gray-300 text-lg mb-8 leading-relaxed">
+                    我们在尊重传统工艺的同时，不断探索创新边界，将现代科技与传统美学相融合，创造出独特的设计语言。
+                </p>
+                <div class="w-24 h-1 bg-accent mb-8"></div>
+                <p class="text-gray-400">
+                    通过对传统与现代的深度思考，我们的设计既保留了经典元素，又展现出前卫的创新精神，为用户带来全新体验。
+                </p>
+            </div>
+        </div>
+
+        <!-- 右侧固定内容区 -->
+        <div class="fixed-content">
+            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/0cdf64cd0e5e4124b4fd4bb1caad03b4~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260406141112659217383D681A603A96&rrcfp=f06b921b&x-expires=1778047914&x-signature=8bcB441wkzfVcsSkineJGx%2B6mco%3D" alt="设计理念" class="absolute inset-0 w-full h-full object-cover" data-image="1">
+            <img src="https://p26-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/7464956b474e40188f23e44db7cf0430~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260406141112659217383D681A603A96&rrcfp=f06b921b&x-expires=1778047924&x-signature=DTEM098IA9F6IktBf3VJwXkPrYU%3D" alt="工艺与材质" class="absolute inset-0 w-full h-full object-cover" data-image="2">
+            <img src="https://p26-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/327bc337472848e5b8524595bd394ebc~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260406141112659217383D681A603A96&rrcfp=f06b921b&x-expires=1778047903&x-signature=%2FcKbk7O3b%2BrJ4%2BA5eVEmRyEFGDU%3D" alt="创新与传统" class="absolute inset-0 w-full h-full object-cover" data-image="3">
+        </div>
+    </section>
+
+    <!-- 关于我区域 -->
+    <section id="about" class="py-24 bg-primary">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-top gap-12">
+                <div class="md:w-1/3">
+                    <div class="relative">
+                        <img src="https://p11-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/c8a42dcd95014e8ea650d895d1752934~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260406141112659217383D681A603A96&rrcfp=f06b921b&x-expires=1778047936&x-signature=ZK13WCwITjcpxRlv4mJ25JMahRA%3D" alt="设计师形象" class="w-full rounded-lg relative z-10 border border-gray-800">
+                        <!-- 装饰元素 -->
+                        <div class="absolute -bottom-4 -right-4 w-24 h-24 border-2 border-accent rounded-lg -z-10"></div>
+                        <div class="absolute -top-4 -left-4 w-24 h-24 border-2 border-accent rounded-lg -z-10"></div>
+                    </div>
+                </div>
+                
+                <div class="md:w-2/3">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">
+                        <span class="premium-text" data-text="关于设计师">关于设计师</span>
+                    </h2>
+                    <p class="text-gray-300 mb-6 leading-relaxed text-lg">
+                        作为一名拥有10年经验的高端产品设计师，我专注于将艺术与科技完美融合，创造出兼具美学价值与实用功能的设计作品。我的设计理念是"简约而不简单"，通过对细节的极致追求，打造出能够触动人心的产品体验。
+                    </p>
+                    <p class="text-gray-300 mb-8 leading-relaxed text-lg">
+                        我曾为多个国际知名品牌提供设计服务，作品涵盖电子产品、奢侈品、智能家居等多个领域。我相信好的设计应该是能够解决问题的，同时也要能够传达品牌的价值观和情感诉求。
+                    </p>
+                    
+                    <!-- 技能 -->
+                    <div class="mb-12">
+                        <h3 class="text-xl font-semibold mb-4 text-white">专业技能</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-4 py-2 bg-gray-800 rounded-full text-sm text-accent">产品设计</span>
+                            <span class="px-4 py-2 bg-gray-800 rounded-full text-sm text-accent">UI/UX设计</span>
+                            <span class="px-4 py-2 bg-gray-800 rounded-full text-sm text-accent">品牌设计</span>
+                            <span class="px-4 py-2 bg-gray-800 rounded-full text-sm text-accent">3D建模</span>
+                            <span class="px-4 py-2 bg-gray-800 rounded-full text-sm text-accent">原型设计</span>
+                            <span class="px-4 py-2 bg-gray-800 rounded-full text-sm text-accent">用户研究</span>
+                            <span class="px-4 py-2 bg-gray-800 rounded-full text-sm text-accent">设计思维</span>
+                            <span class="px-4 py-2 bg-gray-800 rounded-full text-sm text-accent">创意策略</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 经验和教育 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- 经验 -->
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4 text-white">工作经验</h3>
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="font-medium text-white">首席产品设计师</h4>
+                                    <p class="text-gray-400 text-sm">LUXE Design Studio</p>
+                                    <p class="text-accent text-xs mt-1">2020 - 至今</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-white">高级产品设计师</h4>
+                                    <p class="text-gray-400 text-sm">Tech Innovation Lab</p>
+                                    <p class="text-accent text-xs mt-1">2016 - 2020</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-white">UI/UX设计师</h4>
+                                    <p class="text-gray-400 text-sm">Creative Design Agency</p>
+                                    <p class="text-accent text-xs mt-1">2013 - 2016</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 教育 -->
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4 text-white">教育背景</h3>
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="font-medium text-white">设计学硕士</h4>
+                                    <p class="text-gray-400 text-sm">中央美术学院</p>
+                                    <p class="text-accent text-xs mt-1">2011 - 2013</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-white">工业设计学士</h4>
+                                    <p class="text-gray-400 text-sm">清华大学美术学院</p>
+                                    <p class="text-accent text-xs mt-1">2007 - 2011</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 联系方式区域 -->
+    <section id="contact" class="py-24 bg-secondary">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold mb-16 text-center">
+                <span class="premium-text" data-text="联系我们">联系我们</span>
+            </h2>
+            <div class="flex flex-col lg:flex-row gap-12">                
+                <!-- 右侧联系表单 -->
+                <div class="mx-auto px-4 w-full max-w-2xl">
+                    <div class="bg-primary p-8 rounded-lg shadow-lg border border-gray-800">
+                        <h3 class="text-2xl font-semibold mb-6 text-white">发送消息</h3>
+                        
+                        <form id="contact-form" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="name" class="block text-sm font-medium text-gray-400 mb-1">姓名</label>
+                                    <input type="text" id="name" name="name" class="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent text-white">
+                                </div>
+                                <div>
+                                    <label for="email" class="block text-sm font-medium text-gray-400 mb-1">邮箱</label>
+                                    <input type="email" id="email" name="email" class="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent text-white">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="subject" class="block text-sm font-medium text-gray-400 mb-1">主题</label>
+                                <input type="text" id="subject" name="subject" class="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent text-white">
+                            </div>
+                            
+                            <div>
+                                <label for="message" class="block text-sm font-medium text-gray-400 mb-1">消息</label>
+                                <textarea id="message" name="message" rows="5" class="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent text-white"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="w-full px-8 py-3 bg-accent text-primary font-medium rounded-md hover:bg-opacity-90 transition duration-300">
+                                发送消息
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="py-12 bg-primary border-t border-gray-800">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <h3 class="text-2xl font-bold">
+                        <span class="premium-text" data-text="LUXE DESIGN">LUXE DESIGN</span>
+                    </h3>
+                    <p class="text-gray-400 mt-2">高端设计，创造非凡体验</p>
+                </div>
+                
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-accent transition duration-300">
+                        <i class="fa fa-behance text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-accent transition duration-300">
+                        <i class="fa fa-dribbble text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-accent transition duration-300">
+                        <i class="fa fa-instagram text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-accent transition duration-300">
+                        <i class="fa fa-linkedin text-xl"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
+                <p>© 2026 LUXE DESIGN. 保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 灵动岛 -->
+    <div class="fixed bottom-8 left-0 right-0 flex justify-center z-50 transition-transform duration-500" id="dynamic-island-container">
+        <!-- 灵动岛本体 -->
+        <div class="flex items-center justify-between px-6 py-3 rounded-full bg-[rgba(26,26,26,0.7)] backdrop-blur-md transition-all duration-300 shadow-lg" id="dynamic-island">
+            <span class="text-white mr-3 transition-all duration-300" id="island-text">探索作品</span>
+            <div class="flex items-center justify-center w-6 h-6 rounded-full bg-accent text-primary transition-all duration-300">
+                <i class="fa fa-arrow-up"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- 回到顶部按钮 -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 bg-accent text-primary w-12 h-12 rounded-full flex items-center justify-center shadow-lg opacity-0 invisible transition-all duration-300">
+        <i class="fa fa-arrow-up"></i>
+    </button>
+
+    <!-- 抽屉式详情面板 -->
+    <!-- 作品1详情 -->
+    <div id="productDetails1" class="drawer">
+        <!-- 背景遮罩 -->
+        <div class="drawer-backdrop"></div>
+
+        <!-- 抽屉内容 -->
+        <div class="drawer-content p-6">
+            <!-- 关闭按钮 -->
+            <button class="drawer-close">
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        
+            <!-- 可滚动内容区 -->
+            <div class="h-full overflow-y-auto px-6 py-12">
+                <div class="max-w-5xl mx-auto">
+                    <h2 class="text-3xl font-bold mb-6 text-white">Sonic Elite 耳机</h2>
+                    <div class="w-24 h-1 bg-accent mb-8"></div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                        <div>
+                            <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/0cdf64cd0e5e4124b4fd4bb1caad03b4~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260406141112659217383D681A603A96&rrcfp=f06b921b&x-expires=1778047914&x-signature=8bcB441wkzfVcsSkineJGx%2B6mco%3D" alt="Sonic Elite 耳机" class="w-full rounded-lg">
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4 text-white">项目概述</h3>
+                            <p class="text-gray-300 mb-6">
+                                Sonic Elite 是一款面向高端市场的无线耳机，融合了奢华设计与先进音频技术。产品采用黑金配色方案，彰显尊贵品质，同时提供卓越的音质和舒适的佩戴体验。
+                            </p>
+                            
+                            <h3 class="text-xl font-semibold mb-4 text-white">设计理念</h3>
+                            <p class="text-gray-300 mb-6">
+                                设计灵感来源于现代建筑的几何形态与流线型美学，通过简洁的线条和精致的细节处理，创造出既现代又经典的产品形象。黑金配色不仅提升了产品的奢华感，也使其在市场中具有极高的辨识度。
+                            </p>
+                            
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <span class="px-4 py-2 bg-gray-800 rounded-full text-sm text-accent">产品设计</span>
+                                <span class="px-4 py-2 bg-gray-800 rounded-full text-sm text-accent">音频设备</span>
+                                <span class="px-4 py-2 bg-gray-800 rounded-full text-sm text-accent">奢华品牌</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-12">
+                        <h3 class="text-xl font-semibold mb-4 text-white">设计过程</h3>
+                        <p class="text-gray-300 mb-6">
+                            设计过程始于对目标用户群体的深入研究，了解他们对高端音频产品的需求和期望。通过多轮草图设计和3D建模，我们不断优化产品形态，确保每一个细节都符合人体工学原理和美学标准。
+                        </p>
+                        <p class="text-gray-300 mb-6">
+                            材质选择是项目的关键环节，我们最终确定了采用航空级铝合金与高品质陶瓷相结合的方案，不仅提升了产品的质感，也增强了其耐用性。金色装饰条的运用则为产品增添了奢华感，使其在视觉上更具吸引力。
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-white">项目成果</h3>
+                        <p class="text-gray-300 mb-6">
+                            Sonic Elite 耳机一经推出便获得了市场的热烈反响，不仅在设计奖项中屡获殊荣，更成为了高端音频市场的标杆产品。用户对其出色的音质、舒适的佩戴体验和精致的外观设计给予了高度评价。
+                        </p>
+                        <p class="text-gray-300">
+                            该项目的成功不仅提升了品牌在高端市场的影响力，也为我们后续的产品设计提供了宝贵的经验和灵感。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 作品2详情 -->
+    <div id="productDetails2" class="drawer">
+        <!-- 背景遮罩 -->
+        <div class="drawer-backdrop"></div>
+
+        <!-- 抽屉内容 -->
+        <div class="drawer-content p-6">
+            <!-- 关闭按钮 -->
+            <button class="drawer-close">
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        
+            <!-- 可滚动内容区 -->
+            <div class="h-full overflow-y-auto px-6 py-12">
+                <div class="max-w-5xl mx-auto">
+                    <h2 class="text-3xl font-bold mb-6 text-white">LUXE 品牌官网</h2>
+                    <div class="w-24 h-1 bg-accent mb-8"></div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                        <div class="bg-gray-900 rounded-lg p-8 flex items-center justify-center">
+                            <div class="text-center">
+                                <i class="fa fa-desktop text-5xl text-accent mb-4"></i>
+                                <h4 class="text-xl font-semibold text-white">LUXE 官网设计</h4>
+                                <p class="text-gray-400 mt-2">极简主义设计语言</p>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4 text-white">项目概述</h3>
+                            <p class="text-gray-300 mb-6">
+                                LUXE 品牌官网是为高端设计工作室打造的线上展示平台，旨在通过极简主义设计语言，展现品牌的专业实力与设计理念，为访客提供沉浸式的品牌体验。
+                            </p>
+                            
+                            <h3 class="text-xl font-semibold mb-4 text-white">设计理念</h3>
+                            <p class="text-gray-300 mb-6">
+                                设计采用了"少即是多"的理念，通过大量留白、精致的排版和精心选择的视觉元素，创造出既简约又奢华的视觉体验。深色背景与金色点缀的搭配，不仅提升了品牌的高端感，也为内容提供了理想的展示环境。
+                            </p>
+                            
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <span class="px-4 py-2 bg-gray-800 rounded-full text-sm text-accent">网页设计</span>
+                                <span class="px-4 py-2 bg-gray-800 rounded-full text-sm text-accent">品牌展示</span>
+                                <span class="px-4 py-2 bg-gray-800 rounded-full text-sm text-accent">用户体验</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-12">
+                        <h3 class="text-xl font-semibold mb-4 text-white">设计过程</h3>
+                        <p class="text-gray-300 mb-6">
+                            设计过程始于对品牌核心价值和目标受众的深入分析，我们希望网站能够准确传达品牌的专业形象和设计理念。通过多轮草图设计和原型测试，我们不断优化用户流程和界面布局，确保访客能够轻松获取所需信息。
+                        </p>
+                        <p class="text-gray-300 mb-6">
+                            在视觉设计方面，我们精心选择了配色方案和排版系统，确保网站在各种设备上都能呈现出一致的高品质视觉效果。动效设计则采用了克制而精致的原则，通过微妙的过渡和交互反馈，提升用户体验的流畅度和愉悦感。
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-white">项目成果</h3>
+                        <p class="text-gray-300 mb-6">
+                            网站上线后，获得了客户和访客的一致好评。不仅提升了品牌的线上形象，也为工作室带来了更多高质量的项目合作机会。网站的用户体验和视觉设计也在多个设计奖项中获得了认可。
+                        </p>
+                        <p class="text-gray-300">
+                            该项目的成功证明了极简主义设计语言在高端品牌展示中的有效性，也为我们后续的网页设计项目提供了重要的参考。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 作品3详情 -->
+    <div id="productDetails3" class="drawer">
+        <!-- 背景遮罩 -->
+        <div class="drawer-backdrop"></div>
+
+        <!-- 抽屉内容 -->
+        <div class="drawer-content p-6">
+            <!-- 关闭按钮 -->
+            <button class="drawer-close">
+                <svg viewBox="0 0 24 24" width="24" height="24">
+                    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        
+            <!-- 可滚动内容区 -->
+            <div class="h-full overflow-y-auto px-6 py-12">
+                <div class="max-w-5xl mx-auto">
+                    <h2 class="text-3xl font-bold mb-6 text-white">Chrono Luxe 智能手表</h2>
+                    <div class="w-24 h-1 bg-accent mb-8"></div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                        <div>
+                            <img src="https://p26-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/7464956b474e40188f23e44db7cf0430~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260406141112659217383D681A603A96&rrcfp=f06b921b&x-expires=1778047924&x-signature=DTEM098IA9F6IktBf3VJwXkPrYU%3D" alt="Chrono Luxe 智能手表" class="w-full rounded-lg">
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold mb-4 text-white">项目概述</h3>
+                            <p class="text-gray-300 mb-6">
+                                Chrono Luxe 是一款面向高端市场的智能手表，将传统制表工艺与现代科技完美融合，为用户提供兼具经典美学与智能功能的佩戴体验。
+                            </p>
+                            
+                            <h3 class="text-xl font-semibold mb-4 text-white">设计理念</h3>
+                            <p class="text-gray-300 mb-6">
+                                设计灵感来源于经典腕表的优雅形态，通过现代设计语言的重新诠释，创造出既保留传统制表工艺精髓又符合当代审美的产品形象。不锈钢表壳与金色点缀的搭配，彰显出产品的高端品质与精致工艺。
+                            </p>
+                            
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <span class="px-4 py-2 bg-gray-800 rounded-full text-sm text-accent">产品设计</span>
+                                <span class="px-4 py-2 bg-gray-800 rounded-full text-sm text-accent">智能穿戴</span>
+                                <span class="px-4 py-2 bg-gray-800 rounded-full text-sm text-accent">奢华品牌</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-12">
+                        <h3 class="text-xl font-semibold mb-4 text-white">设计过程</h3>
+                        <p class="text-gray-300 mb-6">
+                            设计过程始于对传统制表工艺的深入研究，我们希望能够在智能手表的设计中融入经典腕表的美学元素。通过多轮草图设计和3D建模，我们不断优化产品形态，确保每一个细节都符合高端制表的标准。
+                        </p>
+                        <p class="text-gray-300 mb-6">
+                            材质选择是项目的关键环节，我们最终确定了采用316L不锈钢作为表壳材质，并辅以18K金点缀，不仅提升了产品的质感，也增强了其耐用性。表盘设计则采用了极简主义风格，通过精心设计的指针和时标，确保时间读取的清晰性和美观性。
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-white">项目成果</h3>
+                        <p class="text-gray-300 mb-6">
+                            Chrono Luxe 智能手表一经推出便获得了市场的热烈反响，不仅在设计奖项中屡获殊荣，更成为了高端智能穿戴市场的标杆产品。用户对其出色的设计、舒适的佩戴体验和丰富的智能功能给予了高度评价。
+                        </p>
+                        <p class="text-gray-300">
+                            该项目的成功不仅提升了品牌在高端市场的影响力，也为智能穿戴设备的设计提供了新的思路和方向。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化GSAP ScrollTrigger
+            gsap.registerPlugin(ScrollTrigger);
+            
+            // 移动端菜单切换
+            const menuToggle = document.getElementById('menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            menuToggle.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // 关闭移动菜单（如果打开）
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                    
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80, // 考虑导航栏高度
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // 导航栏滚动效果
+            const navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('bg-primary', 'shadow-md');
+                    navbar.classList.remove('bg-opacity-80');
+                } else {
+                    navbar.classList.remove('shadow-md');
+                    navbar.classList.add('bg-opacity-80');
+                }
+            });
+            
+            // 回到顶部按钮
+            const backToTopButton = document.getElementById('back-to-top');
+            
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 300) {
+                    backToTopButton.classList.remove('opacity-0', 'invisible');
+                    backToTopButton.classList.add('opacity-100', 'visible');
+                } else {
+                    backToTopButton.classList.add('opacity-0', 'invisible');
+                    backToTopButton.classList.remove('opacity-100', 'visible');
+                }
+            });
+            
+            backToTopButton.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // 灵动岛交互逻辑
+            const islandContainer = document.getElementById('dynamic-island-container');
+            const islandText = document.getElementById('island-text');
+            const island = document.getElementById('dynamic-island');
+            
+            function updateIsland(newText) {
+                // 文字变化动画
+                islandText.style.opacity = '0';
+                islandText.style.transform = 'scale(0.8)';
+              
+                setTimeout(() => {
+                    islandText.textContent = newText;
+                    islandText.style.opacity = '1';
+                    islandText.style.transform = 'scale(1)';
+                  
+                    // 根据文本长度调整宽度
+                    const baseWidth = 120; // 最小宽度
+                    const textWidth = islandText.offsetWidth;
+                    island.style.width = `${Math.max(baseWidth, textWidth + 70)}px`;
+                }, 300);
+            }
+            
+            // 监听滚动以显示/隐藏/更新灵动岛
+            window.addEventListener('scroll', () => {
+                const scrollPosition = window.scrollY;
+                const windowHeight = window.innerHeight;
+                const documentHeight = document.documentElement.scrollHeight;
+                
+                // 计算滚动进度 (0-1)
+                const scrollProgress = scrollPosition / (documentHeight - windowHeight);
+                
+                // 根据滚动位置更新灵动岛
+                if (scrollPosition < windowHeight) {
+                    updateIsland('探索作品');
+                } else if (scrollPosition < windowHeight * 2) {
+                    updateIsland('设计理念');
+                } else if (scrollPosition < windowHeight * 3) {
+                    updateIsland('工艺与材质');
+                } else if (scrollPosition < windowHeight * 4) {
+                    updateIsland('关于设计师');
+                } else {
+                    updateIsland('联系我们');
+                }
+                
+                // 滚动到底部时隐藏灵动岛
+                if (scrollProgress > 0.9) {
+                    islandContainer.style.transform = 'translateY(100px)';
+                } else {
+                    islandContainer.style.transform = 'translateY(0)';
+                }
+            });
+            
+            // 滚动转场效果
+            const container = document.getElementById('transition-section');
+            const image1 = document.getElementById('image1');
+            const image2 = document.getElementById('image2');
+            const transitionLine = document.getElementById('transition-line');
+            
+            window.addEventListener('scroll', () => {
+                // 获取容器相对于视口的位置
+                const rect = container.getBoundingClientRect();
+                // 计算容器顶部超出屏幕的距离
+                const scrolledDistance = Math.max(0, -rect.top);
+                // 计算总的滚动距离
+                const totalScrollDistance = container.offsetHeight - window.innerHeight;
+                // 计算滚动比例 (0-1)
+                const scrollProgress = Math.min(1, scrolledDistance / totalScrollDistance);
+                
+                // 第一次转场 (0-0.5进度)
+                if (scrollProgress <= 0.5) {
+                    const firstTransitionProgress = scrollProgress * 2; // 0-1
+                    image1.style.width = `${(1 - firstTransitionProgress) * 100}%`;
+                    transitionLine.style.left = `${(1 - firstTransitionProgress) * 100}%`;
+                } 
+                // 第二次转场 (0.5-1进度)
+                else {
+                    image1.style.width = '0%';
+                    const secondTransitionProgress = (scrollProgress - 0.5) * 2; // 0-1
+                    image2.style.width = `${(1 - secondTransitionProgress) * 100}%`;
+                    transitionLine.style.left = `${(1 - secondTransitionProgress) * 100}%`;
+                }
+            });
+            
+            // 固定与滚动混合布局
+            const sections = document.querySelectorAll('[data-section]');
+            const images = document.querySelectorAll('[data-image]');
+            
+            // 监听滚动更新图片
+            window.addEventListener('scroll', () => {
+                sections.forEach(section => {
+                    const rect = section.getBoundingClientRect();
+                    const sectionId = section.dataset.section;
+                    
+                    // 当部分在视口中央时
+                    if (rect.top < window.innerHeight/2 && rect.bottom > window.innerHeight/2) {
+                        // 更新对应图片
+                        images.forEach(img => {
+                            if (img.dataset.image === sectionId) {
+                                img.classList.add('active');
+                            } else {
+                                img.classList.remove('active');
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // 抽屉式详情面板
+            const drawers = document.querySelectorAll('.drawer');
+            const drawerBackdrops = document.querySelectorAll('.drawer-backdrop');
+            const drawerCloses = document.querySelectorAll('.drawer-close');
+            
+            // 打开抽屉
+            window.openDrawer = function(id) {
+                const drawer = document.getElementById(id);
+                const backdrop = drawer.querySelector('.drawer-backdrop');
+                const content = drawer.querySelector('.drawer-content');
+                
+                // 显示抽屉
+                drawer.classList.add('active');
+                
+                // 禁用背景滚动
+                document.body.style.overflow = 'hidden';
+            };
+            
+            // 关闭抽屉
+            function closeDrawer(drawer) {
+                drawer.classList.remove('active');
+                
+                // 启用背景滚动
+                document.body.style.overflow = '';
+            }
+            
+            // 绑定关闭事件
+            drawerBackdrops.forEach(backdrop => {
+                backdrop.addEventListener('click', function() {
+                    const drawer = this.closest('.drawer');
+                    closeDrawer(drawer);
+                });
+            });
+            
+            drawerCloses.forEach(close => {
+                close.addEventListener('click', function() {
+                    const drawer = this.closest('.drawer');
+                    closeDrawer(drawer);
+                });
+            });
+            
+            // 表单提交处理
+            const contactForm = document.getElementById('contact-form');
+            
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // 获取表单数据
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const subject = document.getElementById('subject').value;
+                const message = document.getElementById('message').value;
+                
+                // 简单验证
+                if (!name || !email || !subject || !message) {
+                    alert('请填写所有必填字段');
+                    return;
+                }
+                
+                // 模拟表单提交
+                alert('感谢您的留言！我们会尽快回复您。');
+                contactForm.reset();
+            });
+            
+            // 初始化动画
+            function initAnimations() {
+                // Hero区域动画
+                gsap.from('#home h1', {
+                    opacity: 0,
+                    y: 50,
+                    duration: 1,
+                    delay: 0.2
+                });
+                
+                gsap.from('#home p', {
+                    opacity: 0,
+                    y: 30,
+                    duration: 1,
+                    delay: 0.5
+                });
+                
+                gsap.from('#home .flex.space-x-4', {
+                    opacity: 0,
+                    y: 30,
+                    duration: 1,
+                    delay: 0.8
+                });
+                
+                gsap.from('#home img', {
+                    opacity: 0,
+                    scale: 0.9,
+                    duration: 1,
+                    delay: 1.1
+                });
+                
+                // 作品区域动画
+                gsap.utils.toArray('#works .work-card').forEach((card, i) => {
+                    gsap.from(card, {
+                        scrollTrigger: {
+                            trigger: card,
+                            start: 'top bottom-=100',
+                            toggleActions: 'play none none none'
+                        },
+                        opacity: 0,
+                        y: 50,
+                        duration: 0.8,
+                        delay: i * 0.2
+                    });
+                });
+                
+                // 关于区域动画
+                gsap.from('#about img', {
+                    scrollTrigger: {
+                        trigger: '#about',
+                        start: 'top bottom-=100',
+                        toggleActions: 'play none none none'
+                    },
+                    opacity: 0,
+                    x: -50,
+                    duration: 1
+                });
+                
+                gsap.from('#about h2, #about p', {
+                    scrollTrigger: {
+                        trigger: '#about',
+                        start: 'top bottom-=100',
+                        toggleActions: 'play none none none'
+                    },
+                    opacity: 0,
+                    y: 30,
+                    duration: 1,
+                    stagger: 0.2,
+                    delay: 0.3
+                });
+            }
+            
+            // 调用初始化动画函数
+            initAnimations();
+        });
+    </script>
+</body>
+</html>
